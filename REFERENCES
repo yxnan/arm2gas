@@ -1,0 +1,23 @@
+# Migrating ARM syntax assembly code to GNU syntax
+https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax
+
+# Migration of assembler command-line options from armasm to the armclang integrated assembler
+https://www.keil.com/support/man/docs/armclang_mig/armclang_mig_zea1485538620282.htm
+
+# ARM Compiler v5.06 for µVision armasm User Guide
+https://www.keil.com/support/man/docs/armasm/
+
+# An Introduction to the GNU Assembler
+http://www.ee.cityu.edu.hk/~whlau/ARM_Doc/GNU_assembler.pdf
+
+# GNU ARM Assembler Quick Reference
+https://www.ic.unicamp.br/~celio/mc404-2014/docs/gnu-arm-directives.pdf
+
+# Using as - Assembler Directives - ftp - Gnu
+https://ftp.gnu.org/old-gnu/Manuals/gas-2.9.1/html_chapter/as_7.html
+
+# Useful assembler directives and macros for the GNU assembler
+https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/useful-assembler-directives-and-macros-for-the-gnu-assembler
+
+# IAR to CCS ASM Perl Script
+https://processors.wiki.ti.com/index.php/IAR_to_CCS_ASM_Perl_Script
