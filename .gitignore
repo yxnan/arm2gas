@@ -1,4 +1,5 @@
-test
-*.s
-*.c
-*.out
+*
+!.gitignore
+!REFERENCES
+!*.md
+!*.pl
