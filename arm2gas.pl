@@ -18,15 +18,16 @@ Options:
     -l, --lowercase             Use lowercase for instructions [default: uppercase]
     -n, --no-comment            Discard all the comments in output
     -o, --output=<file>         Specify the output filename
-    -s, --suffix=<string>       Suffix(no dot) of the output filename [default: out]
+    -s, --strict                Error on directives that have no equivalent counterpart
     -v, --version               Show version info
     -w, --no-warning            Suppress all warning messages
+    -x, --suffix=<string>       Suffix(no dot) of the output filename [default: out]
 
 Cautions:
-    By default, for some directives that have no equivalent in GNU format,
-    arm2gas will try best to convert and generate warning information on
-    the specific line. Therefore, a 'warning' does NOT necessarily mean no
-    issue, please check the conversion result to ensure it works as expected.
+    By default (without --strict), for those directives that have no equivalent
+    in GNU format, arm2gas will try best to convert and generate warning information
+    on the specific line. Therefore, a 'warning' does NOT necessarily mean no issue,
+    please check the conversion result to ensure it works as expected.
 
     Note that arm2gas will assume that the input file is in the correct syntax,
     otherwise, the conversion result is UNEXPECTED
@@ -45,18 +46,20 @@ my $inplace_conv    = '';
 my $output_suffix   = 'out';
 my $opt_compatible  = 0;
 my $opt_verbose     = 0;
+my $opt_strict      = 0;
 my $opt_lowercase   = 0;
 my $opt_nocomment   = 0;
 my $opt_nowarning   = 0;
 
 GetOptions(
     "output=s"      => \@output_files,
-    "suffix=s"      => \$output_suffix,
+    "x|suffix=s"    => \$output_suffix,
     "e=s"           => \$inplace_conv,
     "help"          => sub { print $helpmsg; exit },
     "v|version"     => sub { print "$ver\n"; exit },
     "compatible"    => \$opt_compatible,
     "i|verbose"     => \$opt_verbose,
+    "s|strict"      => \$opt_strict,
     "lowercase"     => \$opt_lowercase,
     "n|no-comment"  => \$opt_nocomment,
     "w|no-warning"  => \$opt_nowarning
@@ -72,6 +75,7 @@ say "inplace_conv:      |$inplace_conv|";
 say "output_suffix:     |$output_suffix|";
 say "opt_compatible:    |$opt_compatible|";
 say "opt_verbose:       |$opt_verbose|";
+say "opt_strict:        |$opt_strict|";
 say "opt_lowercase:     |$opt_lowercase|";
 say "opt_nocomment:     |$opt_nocomment|";
 say "opt_nowarning:     |$opt_nowarning|";
