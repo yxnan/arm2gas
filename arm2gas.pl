@@ -23,7 +23,7 @@ Options:
     -w, --no-warning            Suppress all warning messages
 
 Cautions:
-    By default, for some directives that have no equivalent in GCC format,
+    By default, for some directives that have no equivalent in GNU format,
     arm2gas will try best to convert and generate warning information on
     the specific line. Therefore, a 'warning' does NOT necessarily mean no
     issue, please check the conversion result to ensure it works as expected.
