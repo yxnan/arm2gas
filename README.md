@@ -20,7 +20,7 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | `-s, --strict`          | Error on directives that have no equivalent counterpart |
 | `-v, --version`         | Show version info                                       |
 | `-w, --no-warning`      | Suppress all warning messages                           |
-| `-x, --suffix=<string>` | Suffix(no dot) of the output filename [default: out]    |
+| `-x, --suffix=<string>` | Suffix of the output filename [default: '.out']         |
 
 ## Supported conversions
 
