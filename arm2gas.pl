@@ -22,7 +22,7 @@ Options:
     -s, --strict                Error on directives that have no equivalent counterpart
     -v, --version               Show version info
     -w, --no-warning            Suppress all warning messages
-    -x, --suffix=<string>       Suffix(no dot) of the output filename [default: out]
+    -x, --suffix=<string>       Suffix of the output filename [default: '.out']
 
 Cautions:
     By default (without --strict), for those directives that have no equivalent
@@ -43,6 +43,7 @@ USAGE
 #--------------------------------
 my $ERR_NO_INPUT        = 1;
 my $ERR_AMBIGUOUS_INOUT = 2;
+my $ERR_INVALID_SUFFIX  = 3;
 
 my $rvalmsg = <<"RETVAL";
 armgas may return one of several error code if it encounters problems.
@@ -50,6 +51,7 @@ armgas may return one of several error code if it encounters problems.
     0       No problems occurred.
     1       No input file specified.
     2       Input and output files doesn't match one-to-one.
+    3       Invalid suffix of output filename.
     255     Generic error code.
 
 RETVAL
@@ -67,9 +69,16 @@ RETVAL
 
 # @args: line, file, err_msg
 sub msg_error {
-    print "\e[01;31mERROR\e[0m: $_[2]. Stop at line $_[0] in $_[1]\n";
+    print "\e[01;31mERROR\e[0m: $_[0]:$_[1]: $_[2]\n";
 }
 
+sub msg_info {
+    print "\e[01;34mINFO\e[0m: $_[0]:$_[1]: $_[2]\n";
+}
+
+sub msg_warn {
+    print "\e[00;33mWARN\e[0m: $_[0]:$_[1]: $_[2]\n";
+}
 
 #--------------------------------
 # command-line arguments parsing
@@ -77,7 +86,7 @@ sub msg_error {
 my @input_files     = ();
 my @output_files    = ();
 my $inplace_conv    = '';
-my $output_suffix   = 'out';
+my $output_suffix   = '.out';
 my $opt_compatible  = 0;
 my $opt_verbose     = 0;
 my $opt_strict      = 0;
@@ -115,11 +124,24 @@ GetOptions(
 # say "opt_nocomment:     |$opt_nocomment|";
 # say "opt_nowarning:     |$opt_nowarning|";
 
+# validate input
 if (@input_files == 0) {
-    msg_error(__LINE__, $0, "No input file");
+    msg_error($0, __LINE__, "No input file");
     exit($ERR_NO_INPUT);
 }
 elsif (@output_files > 0 && $#input_files != $#output_files) {
-    msg_error(__LINE__, $0, "Input and output files must match one-to-one");
+    msg_error($0, __LINE__, "Input and output files must match one-to-one");
     exit($ERR_AMBIGUOUS_INOUT);
 }
+elsif ($output_suffix !~ /^\.*\w+$/) {
+    msg_error($0, __LINE__, "Invalid suffix '$output_suffix'");
+    exit($ERR_INVALID_SUFFIX);
+}
+
+# pair input & output files
+if (@output_files == 0) {
+    foreach (@input_files) {
+        push @output_files, "$_$output_suffix";
+    }
+}
+
