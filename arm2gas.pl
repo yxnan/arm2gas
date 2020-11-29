@@ -18,6 +18,7 @@ Options:
     -l, --lowercase             Use lowercase for instructions [default: uppercase]
     -n, --no-comment            Discard all the comments in output
     -o, --output=<file>         Specify the output filename
+    -r, --return-code           Print return code definitions
     -s, --strict                Error on directives that have no equivalent counterpart
     -v, --version               Show version info
     -w, --no-warning            Suppress all warning messages
@@ -38,6 +39,39 @@ Issues and Bugs:
 USAGE
 
 #--------------------------------
+# return code definitions
+#--------------------------------
+my $ERR_NO_INPUT        = 1;
+my $ERR_AMBIGUOUS_INOUT = 2;
+
+my $rvalmsg = <<"RETVAL";
+armgas may return one of several error code if it encounters problems.
+
+    0       No problems occurred.
+    1       No input file specified.
+    2       Input and output files doesn't match one-to-one.
+    255     Generic error code.
+
+RETVAL
+
+
+#--------------------------------
+# misc definitions
+#--------------------------------
+
+
+
+#--------------------------------
+# function definitions
+#--------------------------------
+
+# @args: line, file, err_msg
+sub msg_error {
+    print "\e[01;31mERROR\e[0m: $_[2]. Stop at line $_[0] in $_[1]\n";
+}
+
+
+#--------------------------------
 # command-line arguments parsing
 #--------------------------------
 my @input_files     = ();
@@ -56,6 +90,7 @@ GetOptions(
     "x|suffix=s"    => \$output_suffix,
     "e=s"           => \$inplace_conv,
     "help"          => sub { print $helpmsg; exit },
+    "return-code"   => sub { print $rvalmsg; exit },
     "v|version"     => sub { print "$ver\n"; exit },
     "compatible"    => \$opt_compatible,
     "i|verbose"     => \$opt_verbose,
@@ -68,15 +103,23 @@ GetOptions(
 @input_files = @ARGV;
 
 # debug
-say "ARGV:              |@ARGV| ($#ARGV)";
-say "input_files:       |@input_files| ($#input_files)";
-say "output_files:      |@output_files| ($#output_files)";
-say "inplace_conv:      |$inplace_conv|";
-say "output_suffix:     |$output_suffix|";
-say "opt_compatible:    |$opt_compatible|";
-say "opt_verbose:       |$opt_verbose|";
-say "opt_strict:        |$opt_strict|";
-say "opt_lowercase:     |$opt_lowercase|";
-say "opt_nocomment:     |$opt_nocomment|";
-say "opt_nowarning:     |$opt_nowarning|";
+# say "ARGV:              |@ARGV| ($#ARGV)";
+# say "input_files:       |@input_files| ($#input_files)";
+# say "output_files:      |@output_files| ($#output_files)";
+# say "inplace_conv:      |$inplace_conv|";
+# say "output_suffix:     |$output_suffix|";
+# say "opt_compatible:    |$opt_compatible|";
+# say "opt_verbose:       |$opt_verbose|";
+# say "opt_strict:        |$opt_strict|";
+# say "opt_lowercase:     |$opt_lowercase|";
+# say "opt_nocomment:     |$opt_nocomment|";
+# say "opt_nowarning:     |$opt_nowarning|";
 
+if (@input_files == 0) {
+    msg_error(__LINE__, $0, "No input file");
+    exit($ERR_NO_INPUT);
+}
+elsif (@output_files > 0 && $#input_files != $#output_files) {
+    msg_error(__LINE__, $0, "Input and output files must match one-to-one");
+    exit($ERR_AMBIGUOUS_INOUT);
+}

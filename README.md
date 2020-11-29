@@ -16,6 +16,7 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | `-l, --lowercase`       | Use lowercase for instructions [default: uppercase]     |
 | `-n, --no-comment`      | Discard all the comments in output                      |
 | `-o, --output=<file>`   | Specify the output filename                             |
+| `-r, --return-code`     | Print return code definitions                           |
 | `-s, --strict`          | Error on directives that have no equivalent counterpart |
 | `-v, --version`         | Show version info                                       |
 | `-w, --no-warning`      | Suppress all warning messages                           |
