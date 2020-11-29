@@ -140,8 +140,7 @@ elsif ($output_suffix !~ /^\.*\w+$/) {
 
 # pair input & output files
 if (@output_files == 0) {
-    foreach (@input_files) {
-        push @output_files, "$_$output_suffix";
-    }
+    @output_files = map {"$_$output_suffix"} @input_files;
 }
 
+print "@output_files\n";
