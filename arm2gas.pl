@@ -12,7 +12,6 @@ arm2gas(v$ver) - Convert legacy ARM assembly syntax (used by armasm) to GNU synt
 Usage: arm2gas.pl [options] file1 [file2...]
 Options:
     -c, --compatible            Keeps compatibility with armclang assembler
-    -e <SRC>                    Perform a one-line convertion (inside '' or "")
     -h, --help                  Show this help text
     -i, --verbose               Show a message on every suspicious convertions
     -n, --no-comment            Discard all the comments in output
@@ -89,7 +88,6 @@ sub msg_warn {
 #--------------------------------
 my @input_files     = ();
 my @output_files    = ();
-my $inplace_conv    = '';
 my $output_suffix   = '.out';
 my $opt_compatible  = 0;
 my $opt_verbose     = 0;
@@ -100,7 +98,6 @@ my $opt_nowarning   = 0;
 GetOptions(
     "output=s"      => \@output_files,
     "x|suffix=s"    => \$output_suffix,
-    "e=s"           => \$inplace_conv,
     "help"          => sub { print $helpmsg; exit },
     "return-code"   => sub { print $rvalmsg; exit },
     "v|version"     => sub { print "$ver\n"; exit },
@@ -112,19 +109,6 @@ GetOptions(
 ) or die("I'm die.\n");
 
 @input_files = @ARGV;
-
-# debug
-# say "ARGV:              |@ARGV| ($#ARGV)";
-# say "input_files:       |@input_files| ($#input_files)";
-# say "output_files:      |@output_files| ($#output_files)";
-# say "inplace_conv:      |$inplace_conv|";
-# say "output_suffix:     |$output_suffix|";
-# say "opt_compatible:    |$opt_compatible|";
-# say "opt_verbose:       |$opt_verbose|";
-# say "opt_strict:        |$opt_strict|";
-# say "opt_lowercase:     |$opt_lowercase|";
-# say "opt_nocomment:     |$opt_nocomment|";
-# say "opt_nowarning:     |$opt_nowarning|";
 
 # validate input
 if (@input_files == 0) {

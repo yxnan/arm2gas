@@ -10,7 +10,6 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | Switch                  | Descriptions                                            |
 | :---------------------- | :------------------------------------------------------ |
 | `-c, --compatible`      | Keeps compatibility with armclang assembler             |
-| `-e <string>`           | Perform a one-line convertion (inside `''` or `""`)     |
 | `-h, --help`            | Show this help text                                     |
 | `-i, --verbose`         | Show a message on every suspicious convertions          |
 | `-n, --no-comment`      | Discard all the comments in output                      |
@@ -23,7 +22,7 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 
 ## Supported conversions
 
-- [ ] [Comments](https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax/Comments?lang=en)
+- [X] [Comments](https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax/Comments?lang=en)
 - [ ] [Labels](https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax/Labels?lang=en)
 - [ ] [Numeric local labels](https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax/Numeric-local-labels?lang=en)
 - [ ] [Functions](https://developer.arm.com/documentation/dui0742/g/Migrating-ARM-syntax-assembly-code-to-GNU-syntax/Functions?lang=en)
