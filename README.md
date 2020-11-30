@@ -13,7 +13,6 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | `-e <string>`           | Perform a one-line convertion (inside `''` or `""`)     |
 | `-h, --help`            | Show this help text                                     |
 | `-i, --verbose`         | Show a message on every suspicious convertions          |
-| `-l, --lowercase`       | Use lowercase for instructions [default: uppercase]     |
 | `-n, --no-comment`      | Discard all the comments in output                      |
 | `-o, --output=<file>`   | Specify the output filename                             |
 | `-r, --return-code`     | Print return code definitions                           |
