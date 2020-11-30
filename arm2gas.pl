@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use strict;
 use warnings;
 use feature 'say';
 use Getopt::Long;
@@ -58,11 +59,17 @@ RETVAL
 #--------------------------------
 
 # conversion result
-%result = (
+our %result = (
     res => '',
-    inc => 1
+    inc => 0
 );
 
+# command-line switches
+our $opt_compatible  = 0;
+our $opt_verbose     = 0;
+our $opt_strict      = 0;
+our $opt_nocomment   = 0;
+our $opt_nowarning   = 0;
 
 #--------------------------------
 # function definitions
@@ -75,11 +82,15 @@ sub exit_error {
 }
 
 sub msg_info {
-    print "\e[01;34mINFO\e[0m: $_[0]\n";
+    if ($opt_verbose) {
+        print "\e[01;34mINFO\e[0m: $_[0]\n";
+    }
 }
 
 sub msg_warn {
-    print "\e[00;33mWARN\e[0m: $_[0]\n";
+    unless ($opt_nowarning) {
+        print "\e[00;33mWARN\e[0m: $_[0]\n";
+    }
 }
 
 
@@ -89,11 +100,6 @@ sub msg_warn {
 my @input_files     = ();
 my @output_files    = ();
 my $output_suffix   = '.out';
-my $opt_compatible  = 0;
-my $opt_verbose     = 0;
-my $opt_strict      = 0;
-my $opt_nocomment   = 0;
-my $opt_nowarning   = 0;
 
 GetOptions(
     "output=s"      => \@output_files,
@@ -134,10 +140,10 @@ my %in_out_files;
 # file processing
 foreach (keys %in_out_files) {
     # global vars for diagnosis
-    $in_file  = $_;
-    $out_file = $in_out_files{$_};
-    $line_n1 = 1;
-    $line_n2 = 1;
+    our $in_file  = $_;
+    our $out_file = $in_out_files{$_};
+    our $line_n1  = 1;
+    our $line_n2  = 1;
 
     open(my $f_in, "<", $_)
         or exit_error($ERR_IO, "$0:".__LINE__.": $in_file: $!");
@@ -156,12 +162,17 @@ foreach (keys %in_out_files) {
 }
 
 sub single_line_conv {
+    our %result;
+    our $in_file;
+    our $out_file;
+    our $line_n1;
+    our $line_n2;
     my $line = shift;
 
     # warn if detect a string
-    if ($line =~ m/"+/ && !$opt_nowarning) {
+    if ($line =~ m/"+/) {
         msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
-            ": Conversion containing strings is suspicious");
+            ": Conversion containing strings needs a check");
     }
 
     # ------ Conversion: comments ------
