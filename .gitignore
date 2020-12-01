@@ -1,5 +1,6 @@
 *
 !DIRECTIVES
 !REFERENCES
+!test.s
 !*.md
 !*.pl

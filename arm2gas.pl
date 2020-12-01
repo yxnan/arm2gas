@@ -2,9 +2,9 @@
 
 use strict;
 use warnings;
-use feature 'say';
+use feature ":5.14";
+no warnings qw(experimental);
 use Getopt::Long;
-use Data::Dumper qw(Dumper);
 
 my $ver = '0.1';
 my $helpmsg = <<"USAGE";
@@ -172,7 +172,7 @@ sub single_line_conv {
     # warn if detect a string
     if ($line =~ m/"+/) {
         msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
-            ": Conversion containing strings needs a check");
+            ": Conversion containing strings needs a manual check");
     }
 
     # ------ Conversion: comments ------
@@ -188,9 +188,34 @@ sub single_line_conv {
     }
 
     # ------ Conversion: labels ------
-    if ($line =~ m/^\w+\s*$/) {
-        $line =~ s/(\w+)/$1:/;
+    given ($line) {
+        # single label
+        when (m/^[a-zA-Z_]\w+\s*(\/\/.*)?$/) {
+            $line =~ s/(\w+)/$1:/;
+        }
+        # numeric local labels
+        when (m/^\d+\s*(\/\/.*)?$/) {
+            $line =~ s/(\d+)/$1:/;
+        }
+        # scope is not supported in GNU
+        when (m/^((\d+)[a-zA-Z_]\w+)\s*(\/\/.*)?$/) {
+            my $full_label = $1;
+            my $num_label  = $2;
+            msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Numeric local label with scope '$1' is not supported in GNU".
+                ", converting to '$2'");
+            $line =~ s/$full_label/$num_label:/;
+        }
+        # delete ROUT directive
+        when (m/^(\w+\s*ROUT)\s*(\/\/.*)?$/i) {
+            msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Scope of numeric local label is not supported in GNU".
+                ", removing ROUT directives");
+            my $rout = $1;
+            $line =~ s/$rout//;
+        }
     }
+
 
 
     if ($line =~ m/^\s*$/) {
