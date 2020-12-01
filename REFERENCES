@@ -10,14 +10,20 @@ https://www.keil.com/support/man/docs/armasm/
 # An Introduction to the GNU Assembler
 http://www.ee.cityu.edu.hk/~whlau/ARM_Doc/GNU_assembler.pdf
 
-# GNU ARM Assembler Quick Reference
-https://www.ic.unicamp.br/~celio/mc404-2014/docs/gnu-arm-directives.pdf
+# GNU Assembler - Bad Request
+https://web.eecs.umich.edu/~prabal/teaching/resources/eecs373/Assembler.pdf
 
 # Using as - Assembler Directives - ftp - Gnu
 https://ftp.gnu.org/old-gnu/Manuals/gas-2.9.1/html_chapter/as_7.html
 
+# GNU ARM Assembler Quick Reference
+https://www.ic.unicamp.br/~celio/mc404-2014/docs/gnu-arm-directives.pdf
+
 # Useful assembler directives and macros for the GNU assembler
 https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/useful-assembler-directives-and-macros-for-the-gnu-assembler
+
+# The GNU Assembler - Wiley Online Library
+https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781118562123.app4
 
 # IAR to CCS ASM Perl Script
 https://processors.wiki.ti.com/index.php/IAR_to_CCS_ASM_Perl_Script
