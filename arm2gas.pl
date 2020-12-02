@@ -42,6 +42,7 @@ USAGE
 #--------------------------------
 my $ERR_ARGV        = 1;
 my $ERR_IO          = 2;
+my $ERR_UNSUPPORT   = 3;
 
 my $rvalmsg = <<"RETVAL";
 armgas may return one of several error code if it encounters problems.
@@ -49,6 +50,7 @@ armgas may return one of several error code if it encounters problems.
     0       No problems occurred.
     1       Invalid or conflict command-line args.
     2       File I/O error.
+    3       Unsupported conversion.
     255     Generic error code.
 
 RETVAL
@@ -87,9 +89,13 @@ sub msg_info {
     }
 }
 
+# @args: no_exact_conv?, msg
 sub msg_warn {
-    unless ($opt_nowarning) {
-        print "\e[00;33mWARN\e[0m: $_[0]\n";
+    if ($opt_strict && $_[0]) {
+        exit_error($ERR_UNSUPPORT, $_[1]);
+    }
+    elsif (! $opt_nowarning) {
+        print "\e[00;33mWARN\e[0m: $_[1]\n";
     }
 }
 
@@ -171,7 +177,7 @@ sub single_line_conv {
 
     # warn if detect a string
     if ($line =~ m/"+/) {
-        msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
+        msg_warn(0, "$in_file:$line_n1 -> $out_file:$line_n2".
             ": Conversion containing strings needs a manual check");
     }
 
@@ -190,29 +196,46 @@ sub single_line_conv {
     # ------ Conversion: labels ------
     given ($line) {
         # single label
-        when (m/^[a-zA-Z_]\w+\s*(\/\/.*)?$/) {
+        when (m/^[a-zA-Z_]\w*\s*(\/\/.*)?$/) {
             $line =~ s/(\w+)/$1:/;
         }
         # numeric local labels
         when (m/^\d+\s*(\/\/.*)?$/) {
             $line =~ s/(\d+)/$1:/;
         }
-        # scope is not supported in GNU
+        # scope is not supported in GAS
         when (m/^((\d+)[a-zA-Z_]\w+)\s*(\/\/.*)?$/) {
             my $full_label = $1;
             my $num_label  = $2;
-            msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
-                ": Numeric local label with scope '$1' is not supported in GNU".
+            msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Numeric local label with scope '$1' is not supported in GAS".
                 ", converting to '$2'");
             $line =~ s/$full_label/$num_label:/;
         }
         # delete ROUT directive
-        when (m/^(\w+\s*ROUT)\s*(\/\/.*)?$/i) {
-            msg_warn("$in_file:$line_n1 -> $out_file:$line_n2".
-                ": Scope of numeric local label is not supported in GNU".
+        when (m/^(\w+\s*ROUT)/i) {
+            msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Scope of numeric local label is not supported in GAS".
                 ", removing ROUT directives");
             my $rout = $1;
             $line =~ s/$rout//;
+        }
+        # branch jump
+        when (m/^\s*B[A-Z]*\s+(%([FB]?)([AT]?)(\d+)(\w*))/i) {
+            my $label        = $1;
+            my $direction    = $2;
+            my $search_level = $3;
+            my $num_label    = $4;
+            my $scope        = $5;
+            ($search_level ne "")
+                and msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Can't specify label's search level '$search_level' in GAS".
+                ", dropping");
+            ($scope ne "")
+                and msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+                ": Can't specify label's scope '$scope' in GAS".
+                ", dropping");
+            $line =~ s/$label/$num_label$direction/;
         }
     }
 
