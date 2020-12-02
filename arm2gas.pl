@@ -78,9 +78,23 @@ our $opt_nowarning   = 0;
 
 # directives to match
 our @drctv_arg0 = (
-    "CODE16", "CODE32", "ELSE", "ENDIF", "ENTRY", "ENDP",
-    "LTORG", "MACRO", "MEND", "MEXIT", "NOFP", "WEND"
+    "THUMB", "REQUIRE8", "PRESERVE8", "CODE16", "CODE32", "ELSE", "ENDIF",
+    "ENTRY", "ENDP","LTORG", "MACRO", "MEND", "MEXIT", "NOFP", "WEND"
 );
+
+# operators
+our %operators = (
+    ":OR:"   => "|",
+    ":EOR:"  => "^",
+    ":AND:"  => "&",
+    ":NOT:"  => "~",
+    ":MOD:"  => "%",
+    ":SHL:"  => "<<",
+    ":SHR:"  => ">>",
+    ":LOR:"  => "||",
+    ":LAND:" => "&&"
+);
+
 
 #--------------------------------
 # function definitions
@@ -347,6 +361,12 @@ sub single_line_conv {
         $line =~ s/$sign${base}_$lit/${sign}0x$cvt/;
     }
 
+    # ------ Conversion: conditional directives ------
+    $line =~ s/IF\s*:DEF:/.ifdef /i;
+    $line =~ s/IF\s*:LNOT:\s*:DEF:/.ifndef /i;
+    $line =~ s/\bIF\b/.if/i;
+    $line =~ s/(ELSE\b|ELSEIF|ENDIF)/'.'.lc($1)/ei;
+
 
     if ($line =~ m/^\s*$/) {
         # delete empty line
@@ -359,8 +379,8 @@ sub single_line_conv {
 }
 
 sub dec2hex {
-    my $decnum = shift;                       
-    my $hexnum = "";                               
+    my $decnum = shift;
+    my $hexnum = "";
     my $tempval;
 
     while ($decnum != 0) {
@@ -368,7 +388,7 @@ sub dec2hex {
         $tempval = chr($tempval + 55) if ($tempval > 9);
         $hexnum = $tempval . $hexnum ;
         $decnum = int($decnum / 16);
-    
+
         if ($decnum < 16) {
             $decnum = chr($decnum + 55) if ($decnum > 9);
             $hexnum = $decnum . $hexnum;

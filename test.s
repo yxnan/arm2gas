@@ -30,3 +30,12 @@ ENDP
     LDR     r1, = 2_11001010
     ADD     r1, #-2_1101
     ADD     r1, #8_27
+
+; ----- Conversion: operators -----
+    IF :DEF:__MICROLIB
+    ENDIF
+    IF :LNOT::DEF:__MICROLIB
+    ELSEIF __STDLIB
+        IF __DEBUG
+        ENDIF
+    ENDIF
