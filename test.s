@@ -31,7 +31,7 @@ ENDP
     ADD     r1, #-2_1101
     ADD     r1, #8_27
 
-; ----- Conversion: operators -----
+; ----- Conversion: conditional directives -----
     IF :DEF:__MICROLIB
     ENDIF
     IF :LNOT::DEF:__MICROLIB
@@ -39,3 +39,8 @@ ENDP
         IF __DEBUG
         ENDIF
     ENDIF
+
+; ----- Conversion: operators -----
+    MOV     r1, (7:SHL:2)
+    MOV     r1, (:NOT:2)
+    MOV     r1, (7:ROR:2)   ; unsupported

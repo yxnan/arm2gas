@@ -367,6 +367,13 @@ sub single_line_conv {
     $line =~ s/\bIF\b/.if/i;
     $line =~ s/(ELSE\b|ELSEIF|ENDIF)/'.'.lc($1)/ei;
 
+    # ------ Conversion: operators ------
+    $line =~ s/$_/$operators{$_}/i foreach (keys %operators);
+    if ($line =~ m/(:[A-Z]+:)/i) {
+        msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Unsupported operator $1".
+            ", need a manual check");
+    }
 
     if ($line =~ m/^\s*$/) {
         # delete empty line
