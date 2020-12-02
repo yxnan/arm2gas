@@ -328,23 +328,23 @@ sub single_line_conv {
         $line .= $indent . "$op $reg, $reg, $imp_shift\n";
         $result{inc}++;
     }
-    elsif ($line =~ m/#(-?)&([\dA-F]+)/) {
+    elsif ($line =~ m/(-?)&([\dA-F]+)/) {
         my $sign    = $1;
         my $hex_lit = $2;
         msg_info("$in_file:$line_n1 -> $out_file:$line_n2".
-            ": Converting hexidecimal #&$hex_lit to #0x$hex_lit");
-        $line =~ s/#${sign}&/#${sign}0x/;
+            ": Converting hexidecimal '&$hex_lit' to '0x$hex_lit'");
+        $line =~ s/${sign}&$hex_lit/${sign}0x$hex_lit/;
     }
-    elsif ($line =~ m/#(-?)([2|8])_(\d+)/) {
+    elsif ($line =~ m/(-?)([2|8])_(\d+)/) {
         my $sign = $1;
         my $base = $2;
         my $lit  = $3;
-        my $cvt  = ($base eq "2") ?
-            oct("0b".$lit): oct($lit);
+        my $cvt  = dec2hex (($base eq "2") ?
+            oct("0b".$lit): oct($lit));
         msg_info("$in_file:$line_n1 -> $out_file:$line_n2".
-            ": Converting '#$sign${base}_$lit' to decimal literal");
+            ": Converting '$sign${base}_$lit' to hexidecimal literal '${sign}0x$cvt'");
 
-        $line =~ s/#$sign${base}_${lit}/#$sign$cvt/;
+        $line =~ s/$sign${base}_$lit/${sign}0x$cvt/;
     }
 
 
@@ -356,4 +356,24 @@ sub single_line_conv {
     else {
         $result{res} = $line;
     }
+}
+
+sub dec2hex {
+    my $decnum = shift;                       
+    my $hexnum = "";                               
+    my $tempval;
+
+    while ($decnum != 0) {
+        $tempval = $decnum % 16;
+        $tempval = chr($tempval + 55) if ($tempval > 9);
+        $hexnum = $tempval . $hexnum ;
+        $decnum = int($decnum / 16);
+    
+        if ($decnum < 16) {
+            $decnum = chr($decnum + 55) if ($decnum > 9);
+            $hexnum = $decnum . $hexnum;
+            $decnum = 0;
+        }
+    }
+    return $hexnum;
 }

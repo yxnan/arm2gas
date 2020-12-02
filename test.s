@@ -26,6 +26,7 @@ ENDP
 ; ----- Conversion: numeric literals -----
     MOV     r1, #0x4, LSL#16   ; 0x40000
     MOV     r1, #0x4, ASR #16
-    ADD     r1, #&AF
+    LDR     r1, =&10AF
+    LDR     r1, = 2_11001010
     ADD     r1, #-2_1101
     ADD     r1, #8_27
