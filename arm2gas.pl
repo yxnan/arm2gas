@@ -315,6 +315,38 @@ sub single_line_conv {
         }
     }
 
+    # ------ Conversion: numeric literals ------
+    if ($line =~ m/(\s*)\w+\s*(\w+).*([A|L]S[L|R])\s*(#\d+)(\s*\/\/.*)?$/) {
+        my $indent    = $1;
+        my $reg       = $2;
+        my $op        = $3;
+        my $imp_shift = $4;
+        msg_warn(0, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Implicit shift is not supported in GAS".
+            ", converting to explicit shift");
+        $line =~ s/,\s*$op\s*$imp_shift//i;
+        $line .= $indent . "$op $reg, $reg, $imp_shift\n";
+        $result{inc}++;
+    }
+    elsif ($line =~ m/#(-?)&([\dA-F]+)/) {
+        my $sign    = $1;
+        my $hex_lit = $2;
+        msg_info("$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Converting hexidecimal #&$hex_lit to #0x$hex_lit");
+        $line =~ s/#${sign}&/#${sign}0x/;
+    }
+    elsif ($line =~ m/#(-?)([2|8])_(\d+)/) {
+        my $sign = $1;
+        my $base = $2;
+        my $lit  = $3;
+        my $cvt  = ($base eq "2") ?
+            oct("0b".$lit): oct($lit);
+        msg_info("$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Converting '#$sign${base}_$lit' to decimal literal");
+
+        $line =~ s/#$sign${base}_${lit}/#$sign$cvt/;
+    }
+
 
     if ($line =~ m/^\s*$/) {
         # delete empty line

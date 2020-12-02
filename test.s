@@ -22,3 +22,10 @@ ENDP
 ; ----- Conversion: sections -----
     AREA |.text|,  CODE, READONLY, ALIGN=3  ; code
     AREA |1_data|, DATA, READWRITE, MERGE=2, GROUP=foo
+
+; ----- Conversion: numeric literals -----
+    MOV     r1, #0x4, LSL#16   ; 0x40000
+    MOV     r1, #0x4, ASR #16
+    ADD     r1, #&AF
+    ADD     r1, #-2_1101
+    ADD     r1, #8_27
