@@ -1,7 +1,11 @@
 # arm2gas
 
-<center><img src="https://img.shields.io/badge/arm2gas-v1.0-brightgreen"><img src="https://img.shields.io/badge/License-GPLv3.0-blue"></center>
-
+<div align="center">
+<p>
+      <a href="https://github.com/typowritter/arm2gas"><img src="https://img.shields.io/badge/arm2gas-v1.0-brightgreen"></a>
+      <a href="https://github.com/typowritter/arm2gas/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3.0-blue" alt="LICENSE"></a>
+</p>
+</div>
 Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 
 ## Usage
@@ -45,14 +49,14 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 
 ## Demo
 
-Conversion result of `test.s` (with option `-i -c`)
+Conversion result of `demo.s` (with option `-i -c`)
 
 ![](./demo/demo.png)
 
 Command-line output:
 
 ```bash
-$ ./arm2gas.pl -i -c test.s 
+$ ./arm2gas.pl -i -c test.s
 WARN: test.s:6 -> test.s.out:6: Numeric local label with scope '2routA' is not supported in GAS, converting to '2'
 WARN: test.s:7 -> test.s.out:7: Scope of numeric local label is not supported in GAS, removing ROUT directives
 WARN: test.s:8 -> test.s.out:8: Numeric local label with scope '3routB' is not supported in GAS, converting to '3'

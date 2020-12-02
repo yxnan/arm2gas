@@ -1,0 +1,88 @@
+// ----- Conversion: labels -----
+LABEL:   // Symbol as label
+1:       // Numeric local label
+
+// scope is unsupported
+2:
+ // delete ROUT
+3:
+
+// branch to numeric local label
+    B   1b
+    BLT 2b      // search level is unsupported
+    BGT 3b
+    BGT 4f // scope is unsupported
+4:
+
+// ----- Conversion: functions -----
+.type myproc1, "function"
+myproc1:
+    // function body
+.Lmyproc1_end:
+.size myproc1, .Lmyproc1_end-myproc1
+
+// ----- Conversion: sections -----
+    .section .text, "ax"  // code
+    .balign 8
+    .section 1_data, "awMG", @progbits, 2, foo
+
+// ----- Conversion: numeric literals -----
+    MOV     r1, #0x4   // 0x40000
+    LSL r1, r1, #16
+    MOV     r1, #0x4
+    ASR r1, r1, #16
+    LDR     r1, =0x10AF
+    LDR     r1, = 0xCA
+    ADD     r1, #-0x0D
+    ADD     r1, #0x17
+
+// ----- Conversion: conditional directives -----
+    .ifdef __MICROLIB
+    .endif
+    .ifndef __MICROLIB
+    .elseif __STDLIB
+        .if __DEBUG
+        .endif
+    .endif
+
+// ----- Conversion: operators -----
+    MOV     r1, #(7<<2)
+    MOV     r1, #(~2)
+    // MOV     r1, #(7:ROR:2)   ; unsupported
+
+// ----- Conversion: misc directives -----
+    .thumb
+    .eabi_attribute 24, 1
+    .eabi_attribute 25, 1
+    .global  main
+    .weak  myproc  // weak declaration
+    .include "myinc.h"
+    .byte     "string"
+    .hword     0xae2e, 0x3c42
+    .hword    0xae2e, 0x3c42
+    .word     0x4000
+    .word    0x4000
+    .quad     0x12345678, 0x56781234
+    .quad    0x12345678, 0x56781234
+    .single    1.0,-.1,3.1E6
+    .single   1.0,-.1,3.1E6
+    .double    1E308, -4E-100
+    .double   1E308, -4E-100
+    .balign   8
+    .rept   1
+        .warning  "Pass 2"
+    .endr
+myreg   .req  R0
+myqreg  .qn  q0.i32
+mydreg  .dn  d0.i32
+
+// ----- Conversion: symbol definition -----
+        .set    var1, 0  // local var is not supported
+        .set    var2, FALSE  // local var is not supported
+        .global var3
+        .set    var3, ""  // .global var
+        .global var4
+        .set    var4, FALSE  // .global var
+.set    var1,    (1+3)
+.set    var2,    TRUE
+.set    var3,    "newstring"

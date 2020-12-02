@@ -1,6 +1,2 @@
-*
-!DIRECTIVES
-!REFERENCES
-!demo
-!*.md
-!*.pl
+*.sublime-workspace
+test.*
