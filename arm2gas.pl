@@ -76,7 +76,7 @@ our $opt_strict      = 0;
 our $opt_nocomment   = 0;
 our $opt_nowarning   = 0;
 
-# directives to match
+# directives for validation only
 our @drctv_arg0 = (
     "THUMB", "REQUIRE8", "PRESERVE8", "CODE16", "CODE32", "ELSE", "ENDIF",
     "ENTRY", "ENDP","LTORG", "MACRO", "MEND", "MEXIT", "NOFP", "WEND"
@@ -95,6 +95,36 @@ our %operators = (
     ":LAND:" => "&&"
 );
 
+# simple replace
+our %misc_op = (
+    "ARM"       =>  ".arm",
+    "THUMB"     =>  ".thumb",
+    "REQUIRE8"  =>  ".eabi_attribute 24, 1",
+    "PRESERVE8" =>  ".eabi_attribute 25, 1",
+    "CODE16"    =>  ".code16",
+    "CODE32"    =>  ".code32",
+    "ALIGN"     =>  ".balign",
+    "LTORG"     =>  ".ltorg",
+    "INCBIN"    =>  ".incbin",
+    "END"       =>  ".end",
+    "GET"       =>  ".include",
+    "INCLUDE"   =>  ".include",
+    "IMPORT"    =>  ".global",  # check before (weak attr)
+    "EXTERN"    =>  ".global",
+    "GLOBAL"    =>  ".global",
+    "EXPORT"    =>  ".global",
+    "RN"        =>  ".req",
+    "QN"        =>  ".qn",
+    "DN"        =>  ".dn",
+    "DCB"       =>  ".byte",
+    "DCWU?"     =>  ".hword",
+    "DCDU?"     =>  ".word",
+    "DCQU?"     =>  ".quad",
+    "DCFSU?"    =>  ".single",
+    "DCFDU?"    =>  ".double",
+    "SPACE"     =>  ".space",
+    "ENTRY"     =>  ""
+);
 
 #--------------------------------
 # function definitions
@@ -374,6 +404,21 @@ sub single_line_conv {
             ": Unsupported operator $1".
             ", need a manual check");
     }
+
+    # ------ Conversion: misc directives ------
+    # weak declaration
+    if ($line =~ m/(EXPORT|GLOBAL|IMPORT|EXTERN)\s+\w+.+\[\s*WEAK\s*\]/i) {
+        my $drctv = $1;
+        $line =~ s/$drctv/.weak/i;
+        $line =~ s/,\s*\[\s*WEAK\s*\]//i;
+    }
+    # INFO directive
+    if ($line =~ m/(INFO\s+\d+\s*,)\s*".*"/i) {
+        my $prefix = $1;
+        $line =~ s/$prefix/.warning /i;
+    }
+    
+    $line =~ s/\b$_\b/$misc_op{$_}/i foreach (keys %misc_op);
 
     if ($line =~ m/^\s*$/) {
         # delete empty line

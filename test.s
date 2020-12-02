@@ -41,6 +41,26 @@ ENDP
     ENDIF
 
 ; ----- Conversion: operators -----
-    MOV     r1, (7:SHL:2)
-    MOV     r1, (:NOT:2)
-    MOV     r1, (7:ROR:2)   ; unsupported
+    MOV     r1, #(7:SHL:2)
+    MOV     r1, #(:NOT:2)
+    ; MOV     r1, #(7:ROR:2)   ; unsupported
+
+; ----- Conversion: misc directives -----
+    THUMB
+    REQUIRE8
+    PRESERVE8
+    GLOBAL  main
+    EXPORT  myproc, [weak]  ; weak declaration
+    INCLUDE "myinc.h"
+    DCB     "string"
+    DCW     0xae2e, 0x3c42
+    DCWU    0xae2e, 0x3c42
+    DCD     0x4000
+    DCDU    0x4000
+    DCFS    1.0,-.1,3.1E6
+    DCFD    1E308, -4E-100
+    ALIGN   8
+    INFO 2, "Pass 2"
+myreg   RN  R0
+myqreg  QN  q0.i32
+mydreg  DN  d0.i32
