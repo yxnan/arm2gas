@@ -182,7 +182,13 @@ sub single_line_conv {
     our $line_n1;
     our $line_n2;
     my $line = shift;
-    $result{inc} = 0;
+    $result{inc} = 1;
+
+    # empty line
+    if ($line =~ m/^\s*$/) {
+        $result{res} = "\n";    # just keep it
+        return;
+    }
 
     # warn if detect a string
     if ($line =~ m/"+/) {
@@ -263,11 +269,16 @@ sub single_line_conv {
         $result{inc}++;
     }
 
-    if ($line =~ m/^\s+$/) {
+    # ------ Conversion: sections ------
+
+
+
+    if ($line =~ m/^\s*$/) {
+        # delete empty line
         $result{res} = "";
+        $result{inc}--;
     }
     else {
         $result{res} = $line;
-        $result{inc} += 1;
     }
 }
