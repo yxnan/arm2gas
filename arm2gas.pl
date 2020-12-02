@@ -66,12 +66,21 @@ our %result = (
     inc => 0
 );
 
+# stack
+our @symbols = ();
+
 # command-line switches
 our $opt_compatible  = 0;
 our $opt_verbose     = 0;
 our $opt_strict      = 0;
 our $opt_nocomment   = 0;
 our $opt_nowarning   = 0;
+
+# directives to match
+our @drctv_arg0 = (
+    "CODE16", "CODE32", "ELSE", "ENDIF", "ENTRY", "ENDP",
+    "LTORG", "MACRO", "MEND", "MEXIT", "NOFP", "WEND"
+);
 
 #--------------------------------
 # function definitions
@@ -168,12 +177,12 @@ foreach (keys %in_out_files) {
 }
 
 sub single_line_conv {
-    our %result;
     our $in_file;
     our $out_file;
     our $line_n1;
     our $line_n2;
     my $line = shift;
+    $result{inc} = 0;
 
     # warn if detect a string
     if ($line =~ m/"+/) {
@@ -196,8 +205,9 @@ sub single_line_conv {
     # ------ Conversion: labels ------
     given ($line) {
         # single label
-        when (m/^[a-zA-Z_]\w*\s*(\/\/.*)?$/) {
-            $line =~ s/(\w+)/$1:/;
+        when (m/^([a-zA-Z_]\w*)\s*(\/\/.*)?$/) {
+            my $label = $1;
+            $line =~ s/$label/$label:/ unless ($label ~~ @drctv_arg0);
         }
         # numeric local labels
         when (m/^\d+\s*(\/\/.*)?$/) {
@@ -239,14 +249,25 @@ sub single_line_conv {
         }
     }
 
+    # ------ Conversion: functions ------
+    if ($line =~ m/^\s*(\w+)\s+PROC\s*(\/\/.*)?$/) {
+        my $func_name = $1;
+        push @symbols, $func_name;
+        $line =~ s/$func_name\s+PROC(.*)$/.type $func_name, "function"$1\n$func_name:/i;
+        $result{inc}++;
+    }
+    elsif ($line =~ m/^(\s*)ENDP(\s*\/\/.*)?$/i) {
+        my $func_name = pop @symbols;
+        my $func_end  = ".L$func_name"."_end";
+        $line =~ s/^(\s*)ENDP(.*)$/$func_end:$2\n$1.size $func_name, $func_end-$func_name/i;
+        $result{inc}++;
+    }
 
-
-    if ($line =~ m/^\s*$/) {
+    if ($line =~ m/^\s+$/) {
         $result{res} = "";
-        $result{inc} = 0;
     }
     else {
         $result{res} = $line;
-        $result{inc} = 1;
+        $result{inc} += 1;
     }
 }
