@@ -209,6 +209,9 @@ sub single_line_conv {
 
     }
 
+    # remove special symbol delimiter
+    $line =~ s/\|//;
+
     # ------ Conversion: labels ------
     given ($line) {
         # single label
@@ -304,7 +307,7 @@ sub single_line_conv {
         }
 
         $line =~ s/^(\s*)AREA[^\/]+[^\/\s]/$1.section $sec_name, "$flags"$args/i;
-        
+
         my $indent = $1;
         if (m/ALIGN\s*=\s*(\d+)/i ~~ @options) {
             $line .= "$indent.balign " . (2**$1) . "\n";
