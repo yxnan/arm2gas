@@ -18,7 +18,7 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | :---------------------- | :------------------------------------------------------ |
 | `-c, --compatible`      | Keeps compatibility with armclang assembler             |
 | `-h, --help`            | Show this help text                                     |
-| `-i, --verbose`         | Show a message on every suspicious convertions          |
+| `-i, --verbose`         | Show a message on every non-trivial convertions         |
 | `-n, --no-comment`      | Discard all the comments in output                      |
 | `-o, --output=<file>`   | Specify the output filename                             |
 | `-r, --return-code`     | Print return code definitions                           |
