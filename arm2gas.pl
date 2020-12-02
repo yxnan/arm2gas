@@ -6,7 +6,7 @@ use feature ":5.14";
 no warnings qw(experimental);
 use Getopt::Long;
 
-my $ver = '0.1';
+my $ver = '1.0';
 my $helpmsg = <<"USAGE";
 arm2gas(v$ver) - Convert legacy ARM assembly syntax (used by armasm) to GNU syntax (GAS)
 
@@ -77,7 +77,7 @@ our $opt_nocomment   = 0;
 our $opt_nowarning   = 0;
 
 # directives for validation only
-our @drctv_arg0 = (
+our @drctv_nullary = (
     "THUMB", "REQUIRE8", "PRESERVE8", "CODE16", "CODE32", "ELSE", "ENDIF",
     "ENTRY", "ENDP","LTORG", "MACRO", "MEND", "MEXIT", "NOFP", "WEND"
 );
@@ -107,6 +107,8 @@ our %misc_op = (
     "LTORG"     =>  ".ltorg",
     "INCBIN"    =>  ".incbin",
     "END"       =>  ".end",
+    "WHILE"     =>  ".rept",
+    "WEND"      =>  ".endr",
     "GET"       =>  ".include",
     "INCLUDE"   =>  ".include",
     "IMPORT"    =>  ".global",  # check before (weak attr)
@@ -124,6 +126,13 @@ our %misc_op = (
     "DCFDU?"    =>  ".double",
     "SPACE"     =>  ".space",
     "ENTRY"     =>  ""
+);
+
+# variable initial value
+our %init_val = (
+    "A" => '0',         # arithmetic
+    "L" => 'FALSE',     # logical
+    "S" => '""'         # string
 );
 
 #--------------------------------
@@ -261,7 +270,7 @@ sub single_line_conv {
         # single label
         when (m/^([a-zA-Z_]\w*)\s*(\/\/.*)?$/) {
             my $label = $1;
-            $line =~ s/$label/$label:/ unless ($label ~~ @drctv_arg0);
+            $line =~ s/$label/$label:/ unless ($label ~~ @drctv_nullary);
         }
         # numeric local labels
         when (m/^\d+\s*(\/\/.*)?$/) {
@@ -417,9 +426,36 @@ sub single_line_conv {
         my $prefix = $1;
         $line =~ s/$prefix/.warning /i;
     }
-    
+
     $line =~ s/\b$_\b/$misc_op{$_}/i foreach (keys %misc_op);
 
+    # ------ Conversion: symbol definition ------
+    if ($line =~ m/LCL([A|L|S])\s+(\w+)/i) {
+        my $var_type = $1;
+        my $var_name = $2;
+        msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Local variable '$var_name' is not supported".
+            ", using static declaration");
+        $line =~ s/LCL$var_type/.set/i;
+        $line =~ s/$var_name/"$var_name, ".$init_val{$var_type}/ei;
+    }
+    elsif ($line =~ m/^(\s*)GBL([A|L|S])\s+(\w+)/i) {
+        my $indent   = $1;
+        my $var_type = $2;
+        my $var_name = $3;
+        $line =~ s/GBL$var_type/.set/i;
+        $line =~ s/$var_name/"$var_name, ".$init_val{$var_type}/ei;
+        $line = "$indent.global $var_name\n" . $line;
+        $result{inc}++;
+    }
+    elsif ($line =~ m/(\w+)\s*(SET[A|L|S])/i) {
+        my $var_name = $1;
+        my $drctv    = $2;
+        $line =~ s/$var_name/.set/;
+        $line =~ s/$drctv/$var_name,/;
+    }
+
+    # postprocess
     if ($line =~ m/^\s*$/) {
         # delete empty line
         $result{res} = "";
