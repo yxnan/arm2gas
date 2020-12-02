@@ -171,6 +171,7 @@ foreach (keys %in_out_files) {
         $line_n1++;
         $line_n2 += $result{inc};
     }
+    print $f_out "\n";  # required by as
 
     close $f_in  or exit_error($ERR_IO, "$0:".__LINE__.": $in_file: $!");
     close $f_out or exit_error($ERR_IO, "$0:".__LINE__.": $out_file: $!");
@@ -230,10 +231,10 @@ sub single_line_conv {
         }
         # delete ROUT directive
         when (m/^(\w+\s*ROUT)/i) {
+            my $rout = $1;
             msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
                 ": Scope of numeric local label is not supported in GAS".
                 ", removing ROUT directives");
-            my $rout = $1;
             $line =~ s/$rout//;
         }
         # branch jump
@@ -243,12 +244,12 @@ sub single_line_conv {
             my $search_level = $3;
             my $num_label    = $4;
             my $scope        = $5;
-            ($search_level ne "")
-                and msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ($search_level eq "")
+                or msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
                 ": Can't specify label's search level '$search_level' in GAS".
                 ", dropping");
-            ($scope ne "")
-                and msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ($scope eq "")
+                or msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
                 ": Can't specify label's scope '$scope' in GAS".
                 ", dropping");
             $line =~ s/$label/$num_label$direction/;
@@ -256,21 +257,60 @@ sub single_line_conv {
     }
 
     # ------ Conversion: functions ------
-    if ($line =~ m/^\s*(\w+)\s+PROC\s*(\/\/.*)?$/) {
+    if ($line =~ m/^\s*(\w+)\s+PROC/) {
         my $func_name = $1;
-        push @symbols, $func_name;
-        $line =~ s/$func_name\s+PROC(.*)$/.type $func_name, "function"$1\n$func_name:/i;
-        $result{inc}++;
+        if ($opt_compatible) {
+            push @symbols, $func_name;
+            $line =~ s/$func_name\s+PROC(.*)$/.type $func_name, "function"$1\n$func_name:/i;
+            $result{inc}++;
+        }
+        else {
+            $line =~ s/$func_name\s+PROC/.func $func_name/i;
+        }
     }
-    elsif ($line =~ m/^(\s*)ENDP(\s*\/\/.*)?$/i) {
-        my $func_name = pop @symbols;
-        my $func_end  = ".L$func_name"."_end";
-        $line =~ s/^(\s*)ENDP(.*)$/$func_end:$2\n$1.size $func_name, $func_end-$func_name/i;
-        $result{inc}++;
+    elsif ($line =~ m/^(\s*)ENDP/i) {
+        if ($opt_compatible) {
+            my $func_name = pop @symbols;
+            my $func_end  = ".L$func_name"."_end";
+            $line =~ s/^(\s*)ENDP(.*)$/$func_end:$2\n$1.size $func_name, $func_end-$func_name/i;
+            $result{inc}++;
+        }
+        else {
+            $line =~ s/ENDP/.endfunc/i;
+        }
     }
 
     # ------ Conversion: sections ------
+    if ($line =~ m/^\s*AREA\s+\|*([.\w]+)\|*([^\/]*?)(\s*\/\/.*)?$/i) {
+        msg_warn(0, "$in_file:$line_n1 -> $out_file:$line_n2".
+            ": Not all AREA attributes are supported".
+            ", need a manual check");
 
+        my $sec_name = $1;
+        my @options  = split /,/, $2;
+
+        my $flags = "a";
+        my $args  = "";
+        foreach (@options) {
+            $flags .= "x"   if (m/CODE/i);
+            $flags .= "w"   if (m/READWRITE/i);
+            $flags =~ s/a// if (m/NOALLOC/i);
+            $flags .= "M"   if (m/MERGE/i);
+            $flags .= "G"   if (m/GROUP/i);
+
+            $args .= ", \@progbits" if (m/DATA/i);
+            $args .= ", $1" if (m/MERGE\s*=\s*(\d+)/i);
+            $args .= ", $1" if (m/GROUP\s*=\s*\|*(\w+)\|*/i);
+        }
+
+        $line =~ s/^(\s*)AREA[^\/]+[^\/\s]/$1.section $sec_name, "$flags"$args/i;
+        
+        my $indent = $1;
+        if (m/ALIGN\s*=\s*(\d+)/i ~~ @options) {
+            $line .= "$indent.balign " . (2**$1) . "\n";
+            $result{inc}++;
+        }
+    }
 
 
     if ($line =~ m/^\s*$/) {
