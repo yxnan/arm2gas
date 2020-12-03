@@ -286,7 +286,7 @@ sub single_line_conv {
             $line =~ s/$full_label/$num_label:/;
         }
         # delete ROUT directive
-        when (m/^(\w+\s*ROUT)/i) {
+        when (m/^(\w+\s*ROUT\b)/i) {
             my $rout = $1;
             msg_warn(1, "$in_file:$line_n1 -> $out_file:$line_n2".
                 ": Scope of numeric local label is not supported in GAS".
@@ -313,7 +313,7 @@ sub single_line_conv {
     }
 
     # ------ Conversion: functions ------
-    if ($line =~ m/^\s*(\w+)\s+PROC/) {
+    if ($line =~ m/^\s*(\w+)\s+PROC\b/) {
         my $func_name = $1;
         if ($opt_compatible) {
             push @symbols, $func_name;
@@ -324,7 +324,7 @@ sub single_line_conv {
             $line =~ s/$func_name\s+PROC/.func $func_name/i;
         }
     }
-    elsif ($line =~ m/^(\s*)ENDP/i) {
+    elsif ($line =~ m/^(\s*)ENDP\b/i) {
         if ($opt_compatible) {
             my $func_name = pop @symbols;
             my $func_end  = ".L$func_name"."_end";
