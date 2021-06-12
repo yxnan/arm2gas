@@ -22,7 +22,7 @@ Migrate legacy ARM syntax assembly to GNU syntax (GAS)
 | `-n, --no-comment`      | Discard all the comments in output                      |
 | `-o, --output=<file>`   | Specify the output filename                             |
 | `-r, --return-code`     | Print return code definitions                           |
-| `-s, --strict`          | Error on directives that have no equivalent counterpart |
+| `-s, --strict`          | Error on directives that have no equivalent counterparts |
 | `-v, --version`         | Show version info                                       |
 | `-w, --no-warning`      | Suppress all warning messages                           |
 | `-x, --suffix=<string>` | Suffix of the output filename [default: '.out']         |
