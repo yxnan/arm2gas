@@ -85,9 +85,9 @@ WARN: test.s:81 -> test.s.out:88: Conversion containing strings needs a manual c
 
 ## Cautions
 
-By default (without `--strict`), for those directives that have no equivalentin GNU format, `arm2gas` will try best to convert and generate warning information on the specific line. Therefore, a 'warning' does **NOT** necessarily mean no issue, please check the conversion result to ensure it works as expected.
+By default (without `--strict`), for those directives that have no equivalent GNU format, `arm2gas` will try best to convert and generate warning information on the specific line. Therefore, a 'warning' does **NOT** necessarily mean no issue, please check the conversion result to ensure it works as expected.
 
-Note that `arm2gas` will *assume that the input file is in the **correct** syntax*, otherwise, the conversion result is **UNEXPECTED**
+Note that `arm2gas` *assumes that the input file is in the **correct** syntax*, otherwise, the conversion result is **UNEXPECTED**
 
 ## TODO
 
