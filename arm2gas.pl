@@ -92,7 +92,8 @@ our %operators = (
     ":SHL:"  => "<<",
     ":SHR:"  => ">>",
     ":LOR:"  => "||",
-    ":LAND:" => "&&"
+    ":LAND:" => "&&",
+    "EQU"    => "="
 );
 
 # simple replace
@@ -427,7 +428,7 @@ sub single_line_conv {
         $line =~ s/$prefix/.warning /i;
     }
 
-    $line =~ s/\b$_\b/$misc_op{$_}/i foreach (keys %misc_op);
+    $line =~ s/\b$_\b/$misc_op{$_}/ foreach (keys %misc_op);
 
     # ------ Conversion: symbol definition ------
     if ($line =~ m/LCL([A|L|S])\s+(\w+)/i) {
